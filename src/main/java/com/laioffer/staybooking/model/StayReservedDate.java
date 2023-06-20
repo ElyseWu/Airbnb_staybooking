@@ -12,7 +12,7 @@ public class StayReservedDate implements Serializable {
     private StayReservedDateKey id;
 
     //MapsId, 因为上面的stayRserveDataKey id中已经包含了stay_id 和 date，所以这里
-    //不需要再来一个stay_id，所以这里用MapsId来表示这里不需要再写一个stay_id
+    //不需要再来一个stay_id，这里用MapsId来表示这个是foreign key
     @MapsId("stay_id")
     @ManyToOne
     private Stay stay;

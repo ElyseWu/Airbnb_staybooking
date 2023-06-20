@@ -29,9 +29,13 @@ public class Stay implements Serializable {
 
     //JsonIgnore是为了返回前端时候不用返回
     @JsonIgnore
+    //mappedBy : 如果这里不用mappedBy的话，spring会自动创建出一个reserve dates一个表格，把stay_id 和对应的所有
+    //reserve date都放进去
     @OneToMany(mappedBy = "stay", cascade = CascadeType.ALL, fetch=FetchType.LAZY)
     private List<StayReservedDate> reservedDates;
 
+    @OneToMany(mappedBy = "stay", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<StayImage> images;
 
     public Stay() {}
 
@@ -43,6 +47,16 @@ public class Stay implements Serializable {
         this.guestNumber = builder.guestNumber;
         this.host = builder.host;
         this.reservedDates = builder.reservedDates;
+        this.images = builder.images;
+    }
+
+    public List<StayImage> getImages() {
+        return images;
+    }
+
+    public Stay setImages(List<StayImage> images) {
+        this.images = images;
+        return this;
     }
 
     public Long getId() {
@@ -96,6 +110,9 @@ public class Stay implements Serializable {
         @JsonProperty("dates")
         private List<StayReservedDate> reservedDates;
 
+        @JsonProperty("images")
+        private List<StayImage> images;
+
         public Builder setId(Long id) {
             this.id = id;
             return this;
@@ -130,6 +147,12 @@ public class Stay implements Serializable {
             this.reservedDates = reservedDates;
             return this;
         }
+
+        public Builder setImages(List<StayImage> images) {
+            this.images = images;
+            return this;
+        }
+
 
         public Stay build() {
             return new Stay(this);
