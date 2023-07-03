@@ -1,9 +1,11 @@
 package com.laioffer.staybooking.service;
 
 import com.laioffer.staybooking.exception.StayNotExistException;
+import com.laioffer.staybooking.model.Location;
 import com.laioffer.staybooking.model.Stay;
 import com.laioffer.staybooking.model.StayImage;
 import com.laioffer.staybooking.model.User;
+import com.laioffer.staybooking.repository.LocationRepository;
 import com.laioffer.staybooking.repository.StayRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,14 +20,20 @@ import java.util.stream.Collectors;
 public class StayService {
 
     private final StayRepository stayRepository;
+
     private final ImageStorageService imageStorageService;
 
+    private final LocationRepository locationRepository;
 
-    public StayService(StayRepository stayRepository, ImageStorageService imageStorageService) {
+    private final GeoCodingService geoCodingService;
 
+    public StayService(StayRepository stayRepository, LocationRepository locationRepository, ImageStorageService imageStorageService, GeoCodingService geoCodingService) {
         this.stayRepository = stayRepository;
+        this.locationRepository = locationRepository;
         this.imageStorageService = imageStorageService;
+        this.geoCodingService = geoCodingService;
     }
+
 
     public List<Stay> listByUser(String username) {
         return stayRepository.findByHost(new User.Builder().setUsername(username).build());
@@ -37,10 +45,6 @@ public class StayService {
             throw new StayNotExistException("Stay doesn't exist");
         }
         return stay;
-    }
-
-    public void add(Stay stay) {
-        stayRepository.save(stay);
     }
 
     @Transactional
@@ -60,8 +64,11 @@ public class StayService {
             stayImages.add(new StayImage(mediaLink, stay));
         }
         stay.setImages(stayImages);
-
         stayRepository.save(stay);
+
+        Location location = geoCodingService.getLatLng(stay.getId(), stay.getAddress());
+        locationRepository.save(location);
+
     }
 
 }
